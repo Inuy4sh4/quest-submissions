@@ -1,0 +1,93 @@
+
+
+1.    What does .link() do?
+///
+
+Like pointers in c++ and c, link creates a pointer to data inside the storage path of an account. These links are called capabilities and
+they offer RESTRICTED(depending on how you do it) access to others to information inside your storage path inside the account!
+
+///
+2.    In your own words (no code), explain how we can use resource interfaces to only expose certain things to the /public/ path.
+///
+
+From the academy example: we implement a resource and specify the functions and variables. The functions can be called to change data on our account
+by other people. What we can do, however, is create an interface where we write what we want to share from the resource: in our example, we only
+add to the interface the 'name' variable, but not the changeName function. What is very important to do after this, is to 
+link the resource to the public by using the INTERFACE, NOT THE RESOURCE! What that means is that in this line of code
+signer.link<&Stuff.Test{Stuff.ITest}>(/public/MyTestResource, target: /storage/MyTestResource), we link to Stuff.ITest, not Stuff.Test.
+
+///
+3.    Deploy a contract that contains a resource that implements a resource interface. Then, do the following:
+
+/// *** the contract ***
+pub contract RestrictiveCapabilities {
+
+  pub resource interface ITest {
+    pub var name: String
+  }
+
+  pub resource Test: ITest{
+   pub var name: String
+
+   pub fun changeName(newName: String){
+    self.name = newName
+}
+
+
+   init() {
+    self.name = "Andrei"
+  }
+ }
+  pub fun createTest(): @Test{
+   return <- create Test()
+   }
+
+}
+///
+
+a)        In a transaction, save the resource to storage and link it to the public with the restrictive interface.
+///
+import RestrictiveCapabilities from 0x02
+transaction(bestHero: String, heroRole: Int){
+ prepare(signer: AuthAccount) {
+  signer.save(<- RestrictiveCapabilities.createDota(_bestHero: bestHero, _heroRole: heroRole), to: /storage/RestrictiveCapabilities)
+
+  signer.link<&RestrictiveCapabilities.Dota{RestrictiveCapabilities.IDota}>(/public/RestrictiveCapabilities, target: /storage/RestrictiveCapabilities)
+  }
+execute {
+
+}
+
+}
+///
+
+b)        Run a script that tries to access a non-exposed field in the resource interface, and see the error pop up.
+///
+
+import RestrictiveCapabilities from 0x02
+pub fun main(address: Address) {
+  let dotaCapability: Capability<&RestrictiveCapabilities.Dota{RestrictiveCapabilities.IDota}> = 
+  getAccount(address).getCapability<&RestrictiveCapabilities.Dota{RestrictiveCapabilities.IDota}>(/public/dota2)
+
+ let dotaReference: &RestrictiveCapabilities.Dota{RestrictiveCapabilities.IDota} = dotaCapability.borrow() ?? panic ("wtf no access hacker sad")
+
+ log (dotaReference.heroRole)
+
+}
+}
+/// *** cannot write heroRole because it is not in the interface. ***
+
+c)        Run the script and access something you CAN read from. Return it from the script.
+///
+
+import RestrictiveCapabilities from 0x02
+pub fun main(address: Address) {
+  let dotaCapability: Capability<&RestrictiveCapabilities.Dota{RestrictiveCapabilities.IDota}> = 
+  getAccount(address).getCapability<&RestrictiveCapabilities.Dota{RestrictiveCapabilities.IDota}>(/public/dota2)
+
+ let dotaReference: &RestrictiveCapabilities.Dota{RestrictiveCapabilities.IDota} = dotaCapability.borrow() ?? panic ("wtf no access hacker sad")
+
+ log (dotaReference.bestHero)
+
+}
+*** spells out "invoker" because bestHero is brought up in the interface ***

@@ -1,0 +1,79 @@
+
+
+1.Deploy a new contract that has a Struct of your choosing inside of it (must be different than Profile).
+pub contract Heroes {
+
+    pub var heroes: {Address: Hero}
+    
+    pub struct Hero {
+        pub let strength1: String
+        pub let strength2: String
+        pub let weakness: String
+        pub let age: UInt64
+        pub let account: Address
+
+        
+        init(_strength1: String, _strength2: String, _weakness: String, _age: UInt64, _account: Address) {
+            self.strength1 = _strength1
+            self.strength2 = _strength2
+            self.weakness = _weakness
+            self.age = _age
+            self.account = _account
+        }
+    }
+
+  
+    init() {
+        self.heroes = {}
+    }
+
+}
+///
+
+2.Create a dictionary or array that contains the Struct you defined.
+import Heroes from 0x01
++++
+3.Create a function to add to that array/dictionary.
+///
+  pub fun addHero(strength1: String, strength2: String, weakness: String, age: UInt64, account: Address) {
+        let newHero = Hero(_strength1: strength1, _strength2: strength2, _weakness: weakness, _age: age, _account: account)
+        self.heroes[account] = newHero
+    }
+
+******* or by script
+pub fun main() {
+    let superman: Heroes.Hero = Heroes.Hero(
+     strength1: "Super Strength",
+     strength2: "X ray vision",
+     weakness: "Kryptonite",
+     age: 30,
+     account: 0x011
+     )
+ log(superman)
+}
+///
+
+4. Add a transaction to call that function in step 3.
+///
+import Heroes from 0x01
+
+transaction(strength1: String, strength2: String, weakness: String, age:UInt64, account:Address) {
+
+prepare(signer: AuthAccount) {}
+
+execute {
+    Heroes.addHero(strength1: "Flight", strength2: "Big biceps", weakness: "Almond Joy", age: 50, account: 0x01)
+log("We're done.")
+    }
+}
+///
+
+5. Add a script to read the Struct you defined.
+
+import Heroes from 0x01
+
+pub fun main(account:Address): Heroes.Hero {
+return Heroes.heroes[account]!
+}
+ //// side-note : i could have declared the address as a String and could have used it as the primary key but heroes should use blockchains too!
+

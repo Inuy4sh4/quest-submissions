@@ -1,0 +1,38 @@
+1.In a script, initialize an array (that has length == 3) of your favourite people, represented as Strings, and log it.
+ ///
+pub fun main(){
+
+var s: [String] = ["Mom", "Dad", "Jacob"]
+log(s)
+}
+///
+
+2.In a script, initialize a dictionary that maps the Strings Facebook, Instagram, Twitter, YouTube, Reddit, and LinkedIn to a UInt64 that represents
+ the order in which you use them from most to least. For example, YouTube --> 1, Reddit --> 2, etc. If you've never used one before, map it to 0!
+///
+pub fun main() {
+var names: {String: UInt64} = {"Facebook":2, "Instagram":0, "Twitter":4, "YouTube":5, "Reddit":3, "LinkedIn":1}
+log(names)
+}
+///
+
+3.Explain what the force unwrap operator ! does, with an example different from the one I showed you (you can just change the type).
+/// The unwrap operator refers to optionals: where the value of a variable is not just a predefined Int, String etc value
+but instead it can be a String, int, etc OR nil(nothing). "!" unwraps the variable from the double-possible value to a simple value like String
+(but only if it is a String and not nil!!)
+
+For example, var jacobGod: String? = "Absolutely!!" /// the var here could also be nil -> var jacobGod: String? = nil
+var jacobGodOpt: String = jacobGod      /// this would return an error because these two variables are not the same type!
+var jacobGodOpt: String = jacobGod!     /// the simple addition of the "!" unwrap operator will make our code work because 
+					/// it will first check if jacobGodOpt is a String or nil, and if it is a String then it will assign
+					/// the value of jacobGod to jacobGodOpt
+
+
+
+
+4.Using this picture below, explain...
+    What the error message means --- I guess I went into too much detail above -> It means that the mappings in "thing" can also have nil values
+    Why we're getting this error --- because if we have nil values in thing, then the return of the script (String) would not be accepted
+    How to fix it --- we either add STRING? as a return type of the script OR we unwrap the thing[0x03] with "!" so that the computer first checks
+		  that there is, indeed, a string value there
+

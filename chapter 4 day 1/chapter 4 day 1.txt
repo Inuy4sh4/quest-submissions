@@ -1,0 +1,102 @@
+1.    Explain what lives inside of an account.
+///
+	Data like contract codes and account storage information, including nft's.
+///
+2.    What is the difference between the /storage/, /public/, and /private/ paths?
+///
+Storage refers to the entire set of data inside the account and can only be accessed by the owner
+
+Public refers to data that can be seen by everyone, like the readable version of nft's, that cannot be withdrawn
+
+Private refers to data that can only be seen by the owner and people that he gives the right to.
+
+///
+3.    What does .save() do? What does .load() do? What does .borrow() do?
+.save() updates the data in a specified STORAGE path
+
+.load() takes out the data from a specified STORAGE path(remember it returns an optional so panic or unwrap!!)
+
+ *** So far, i have saved the data in my account in the TestResources storage path and updated my name to "Andrei", using .save().
+Now, I use .load() to verify the data inside my account and what do you know, it's "Andrei". Load returns an optional because if I run the
+load transaction before i run the save one, i get an error saying that there is no such thing as Account.name inside of my account.
+
+.borrow() -> Also worth mentioning is that whenever we use the .load() function, we also destroy the resource at the end. That's where borrow comes in.
+After using .load, we have to run the save() function again to re-insert the data. Borrowing allows us to get a &REFERENCE, not a @Resource, and so 
+we can borrow 10 times in a row with no errors because we do not alter the data inside the account!
+
+
+4.    Explain why we couldn't save something to our account storage inside of a script.
+///
+	Because scripts do not alter the state of the blockchain!
+///
+
+5.    Explain why I couldn't save something to your account.
+///	
+	Because you need accest(authorization) to do so.
+///
+
+6.    Define a contract that returns a resource that has at least 1 field in it. Then, write 2 transactions:
+
+*** contract ***
+pub contract AccountStorage {
+
+    pub resource Test {
+    pub var name: String
+    init() {
+      self.name = "Andrei"
+    }
+  }
+
+  pub fun createTest(): @Test {
+    return <- create Test()
+  }
+
+}
+
+  a)     A transaction that first saves the resource to account storage, then loads it out of account storage, logs a field inside the resource, and destroys it.
+///
+import AccountStorage from 0x03
+
+transaction() {
+
+prepare(signer: AuthAccount){
+let testResource <- AccountStorage.createTest()
+signer.save(<- testResource, to: /storage/MyTestResource)
+let testResource1 <- signer.load<@AccountStorage.Test>(from: /storage/MyTestResource)
+                    ?? panic("A '@AccountStorage.Test' resource does not live here.")
+log(testResource1.name)
+
+destroy testResource1
+
+}
+
+execute {
+
+}
+}
+
+*** worth mentioning that because we destroy the in the loading transaction, we can use it however many times we want ***
+///
+
+
+
+  b)        A transaction that first saves the resource to account storage, then borrows a reference to it, and logs a field inside the resource.
+
+import AccountStorage from 0x03
+
+transaction() {
+
+prepare(signer: AuthAccount){
+let testResource <- AccountStorage.createTest()
+signer.save(<- testResource, to: /storage/MyTestResource)
+let testResource1 = signer.borrow<&AccountStorage.Test>(from: /storage/MyTestResource)
+                    ?? panic("A '@AccountStorage.Test' resource does not live here.")
+log(testResource1.name)
+
+}
+
+execute {
+
+}
+}
+*** Here, however, we can only run the transaction once because the data is not destroyed so it remains written in the account ***

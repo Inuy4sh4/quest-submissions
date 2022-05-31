@@ -1,0 +1,67 @@
+
+
+1.    Explain why standards can be beneficial to the Flow ecosystem.
+
+Minimizes the risks of hacks and improves functionality tenfold. Interactions with these contracts is a lot easier because there's a predefined
+set of rules that must be respected so that they have the same function names, always return the same type etc. Basically, instead of having
+a unique different way of interacting with every nft contract, you can interect in a single way with thousands of nft contracts instead.
+
+
+2.    What is YOUR favourite food?
+
+Mesopotamia turkey kebab is freaking insane
+
+3.    Please fix this code (Hint: There are two things wrong):
+
+The contract interface:
+
+pub contract interface ITest {
+  pub var number: Int
+  
+  pub fun updateNumber(newNumber: Int) {
+    pre {
+      newNumber >= 0: "We don't like negative numbers for some reason. We're mean."
+    }
+    post {
+      self.number == newNumber: "Didn't update the number to be the new number."
+    }
+  }
+
+  pub resource interface IStuff {
+    pub var favouriteActivity: String
+  }
+
+  pub resource Stuff {
+    pub var favouriteActivity: String
+  }
+}
+
+The implementing contract:
+
+*** the implementing contract forgot to implement *** 
+implement ITest from 0x01
+
+*** would work anyway but it's not implementing the interface without the :ITest ***
+pub contract Test: ITest {
+  pub var number: Int
+  
+  pub fun updateNumber(newNumber: Int) {
+    self.number = 5
+  }
+
+  pub resource interface IStuff {
+    pub var favouriteActivity: String
+  }
+*** forgot to add the contract that has the interface (ITest.Istuff)
+  pub resource Stuff: ITest.IStuff {
+    pub var favouriteActivity: String
+
+    init() {
+      self.favouriteActivity = "Playing League of Legends."
+    }
+  }
+
+  init() {
+    self.number = 0
+  }
+}

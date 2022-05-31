@@ -1,0 +1,13 @@
+1. Explain why we wouldn't call changeGreeting in a script.
+
+	/// we will not call changeGreeting in a script because scripts do not modify the state of the contract, they return something instead
+
+2. What does the AuthAccount mean in the prepare phase of the transaction?
+
+	/// it refers to WHO will authorize and pay the transaction fee
+
+3. What is the difference between the prepare phase and the execute phase in the transaction?
+
+	/// the prepare phase refers to the accessing of the information of the AuthAccount while the execute phase is where our code will be executed
+(like calling functions and changing the information inside the contract)
+

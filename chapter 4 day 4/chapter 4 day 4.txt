@@ -1,0 +1,92 @@
+pub contract CryptoPoops {
+  pub var totalSupply: UInt64
+
+  // This is an NFT resource that contains a name,
+  // favouriteFood, and luckyNumber
+  pub resource NFT {
+    pub let id: UInt64
+
+    pub let name: String
+    pub let favouriteFood: String
+    pub let luckyNumber: Int
+
+// This is a constructor. It requires 3 arguments (name, favouritefood, luckynumber)
+    init(_name: String, _favouriteFood: String, _luckyNumber: Int) {
+      self.id = self.uuid
+
+      self.name = _name
+      self.favouriteFood = _favouriteFood
+      self.luckyNumber = _luckyNumber
+    }
+  }
+
+  // This is a resource interface that allows us to implement capabilities, restrictions and privacies for our Collection resource.
+  pub resource interface CollectionPublic {
+    pub fun deposit(token: @NFT)
+    pub fun getIDs(): [UInt64]
+    pub fun borrowNFT(id: UInt64): &NFT
+  }
+
+
+// Here, Collection implements the Collection interface
+  pub resource Collection: CollectionPublic {
+
+// the id of the nft's that the account owns from the collection, stored in a dictionary. This is private information(not used in the interface)
+    pub var ownedNFTs: @{UInt64: NFT}
+
+    pub fun deposit(token: @NFT) {
+      self.ownedNFTs[token.id] <-! token
+    }
+// another 'hidden' function. This one allows us to withdraw an NFT.
+    pub fun withdraw(withdrawID: UInt64): @NFT {
+      let nft <- self.ownedNFTs.remove(key: withdrawID) 
+              ?? panic("This NFT does not exist in this Collection.")
+      return <- nft
+    }
+
+// the keys are the ids of the nft's
+    pub fun getIDs(): [UInt64] {
+      return self.ownedNFTs.keys
+    }
+/// borrow, deposit and getIDs are used in the interface so we have to initialize them in the resource as well
+// borrow function returns a reference to the nft based on the id
+    pub fun borrowNFT(id: UInt64): &NFT {
+
+      return &self.ownedNFTs[id] as &NFT
+    }
+// a constructor for our Collection
+    init() {
+// the empty dictionary where the 
+      self.ownedNFTs <- {}
+    }
+
+// the requirement for nested resources to keep the deletions clean
+    destroy() {
+      destroy self.ownedNFTs
+    }
+  }
+// create the empty collection AND return it with an empty dictionary
+  pub fun createEmptyCollection(): @Collection {
+    return <- create Collection()
+  }
+// Resource for the Minter
+  pub resource Minter {
+// create / mint the nft
+    pub fun createNFT(name: String, favouriteFood: String, luckyNumber: Int): @NFT {
+//the relevant (meta)data of our nft
+      return <- create NFT(_name: name, _favouriteFood: favouriteFood, _luckyNumber: luckyNumber)
+    }
+// creating the Minter Resource
+    pub fun createMinter(): @Minter {
+      return <- create Minter()
+    }
+
+  }
+
+  init() {
+// the total supply of the nft's is set to 0 upon initialization
+    self.totalSupply = 0
+// the minter that we created above gets stored in the storage path so that it is only accessible to the owner
+    self.account.save(<- create Minter(), to: /storage/Minter)
+  }
+}

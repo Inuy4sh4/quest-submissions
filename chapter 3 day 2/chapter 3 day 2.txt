@@ -1,0 +1,71 @@
+1.Write your own smart contract that contains two state variables: an array of resources, and a dictionary of resources.
+Add functions to remove and add to each of them. 
+They must be different from the examples above.
+
+/// THE ARRAY ///
+pub contract Test {
+
+  pub var arrayOfIps: @[Privacy]
+
+  pub resource Privacy {
+    pub let ip: Int
+    init() {
+    self.ip = 192168
+    }
+  }
+	*** append ***
+  pub fun addIp(ip: @Privacy) {
+    self.arrayOfIps.append(<-ip)
+  }
+	*** remove ***
+  pub fun removeIp(index: Int): @Privacy{
+  return <- self.arrayOfIps.remove(at: index)
+  }
+
+  init() {
+  self.arrayOfIps <- []
+  }
+}
+/// 
+ *** DICTIONARY ***
+pub contract Test {
+
+  pub var dictionaryGaming: @{String: Game}
+
+  pub resource Game {
+  pub let videogame: String
+    init() {
+      self.videogame = "Dota 2"
+    }
+  }
+	*** add dictionary ***
+  // adding a game:
+  pub fun addGame(videogame: @Game){
+    let key = videogame.videogame
+    self.dictionaryGaming[key] <-! videogame
+  }
+  init() {
+    self.dictionaryGaming <- {}
+    }
+}
+
+ *** handle duplicates option *** 
+
+  // adding a game with duplicates:
+  pub fun addGame(videogame: @Game) {
+    let key = videogame.videogame
+
+    let oldGame <- self.dictionaryGaming[key] <- videogame
+    destroy oldGame
+  }
+  init() {
+    self.dictionaryGaming <- {}
+    }
+}
+
+	*** remove from a dictionary ***
+
+/// pub fun removeGame(key: String): @Game {
+    let videogame <- self.dictionaryGaming.remove(key: key) ?? panic("Could not find the game!!!!")
+    return <- videogame
+///
