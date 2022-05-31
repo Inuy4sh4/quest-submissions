@@ -1,0 +1,87 @@
+1.For today's quest, you will be looking at a contract and a script. You will be looking at 4 variables (a, b, c, d) and 3 functions (publicFunc, contractFunc, privateFunc) defined in SomeContract. In each AREA (1, 2, 3, and 4), I want you to do the following: for each variable (a, b, c, and d), tell me in which areas they can be read (read scope) and which areas they can be modified (write scope). For each function (publicFunc, contractFunc, and privateFunc), simply tell me where they can be called.
+
+access(all) contract SomeContract {
+    pub var testStruct: SomeStruct
+
+    pub struct SomeStruct {
+
+        //
+        // 4 Variables
+        //
+
+        pub(set) var a: String  // from the start, we know that a is readable and writable everywhere.
+
+        pub var b: String // can be read everywhere but can only be written in current and inner
+
+        access(contract) var c: String // can be read in current, inner and containing contract, can be written in current and inner
+
+        access(self) var d: String // can be read in current and inner, can be written in current and inner
+
+        //
+        // 3 Functions
+        //
+
+        pub fun publicFunc() {} // can be accessed everywhere
+
+        access(contract) fun contractFunc() {} // current, inner and containing contract
+
+        access(self) fun privateFunc() {} // current and inner
+
+        pub fun structFunc() {
+            /**************/
+            /*** AREA 1 ***/
+            /**************/
+	    // a, b, c, d are readable and writable in here!
+	    // all functions can be called in here!
+        }
+
+        init() {
+            self.a = "a"
+            self.b = "b"
+            self.c = "c"
+            self.d = "d"
+        }
+    }
+
+    pub resource SomeResource {
+        pub var e: Int
+
+        pub fun resourceFunc() {
+            /**************/
+            /*** AREA 2 ***/
+            /**************/
+	    // a is readable and writable, b and c are readable, d is neither readable nor writable
+	    // publicFunc and contractFunc are callable, privateFunc is not
+        }
+
+        init() {
+            self.e = 17
+        }
+    }
+
+    pub fun createSomeResource(): @SomeResource {
+        return <- create SomeResource()
+    }
+
+    pub fun questsAreFun() {
+        /**************/
+        /*** AREA 3 ****/
+        /**************/
+	// a is both readable and writable, b and c are readable, d is neither readable nor writable
+	// publicFunc and contractFunc are callable
+    }
+
+    init() {
+        self.testStruct = SomeStruct()
+    }
+}
+
+import SomeContract from 0x01
+
+pub fun main() {
+  /**************/
+  /*** AREA 4 ***/
+  /**************/
+  // a is readable and writable, b is readable but not writable, c and d are neither readable nor writable
+  // publincFunc is callable, contractFunc and privateFunc are not
+}
