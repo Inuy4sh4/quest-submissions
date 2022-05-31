@@ -97,6 +97,7 @@ pub contract Test {
   pub resource TestResource {
     pub var number: Int
 *** yes, it will return 1 because the first post condition is true (1=1) and the number then gets incremented to 1 ***
+	*** later edit:  it does NOT return the number because the result is already > with 1 than the before value. ***
     // TODO
     // Tell me whether or not this function will log the updated number.
     // Also, tell me the value of `self.number` after it's run.
